@@ -12,9 +12,7 @@ except ImportError:
         return ''.join(padding+line for line in text.splitlines(True))
 
 
-_RE_PATTERN_ITEMS = re.compile(
-    r"(\**\w+)(.*?)(?:$|(?=\n\**\w+))", flags=re.DOTALL
-)
+_RE_PATTERN_ITEMS = None
 
 _STYLE_TO_PADDING = {
     "numpy": "",
@@ -63,10 +61,7 @@ def parse(doc_sections):
     ----------
     doc_sections: OrderedDict[str, Optional[str]]
     """
-    for section_name in SECTION_NAMES:
-        section_content = doc_sections[section_name]
-        if section_content:
-            doc_sections[section_name] = OrderedDict(_RE_PATTERN_ITEMS.findall(inspect.cleandoc(section_content)))
+    pass
 
 
 def merge(prnt_sec, child_sec, merge_within_sections, style):
@@ -86,11 +81,4 @@ def merge(prnt_sec, child_sec, merge_within_sections, style):
     OrderedDict[str, str]
         The merged items.
     """
-    if merge_within_sections:
-        body = prnt_sec.copy()
-        body.update(child_sec)
-        body = _render(body, style)
-    else:
-        body = prnt_sec if not child_sec else child_sec
-        body = _render(body, style)
-    return body
+    return ""

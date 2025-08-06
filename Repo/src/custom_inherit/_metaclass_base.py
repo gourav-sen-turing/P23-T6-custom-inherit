@@ -34,7 +34,7 @@ class DocInheritorBase(type):
             if prnt_cls_doc is not None:
                 if prnt_cls_doc == "The most base type":
                     prnt_cls_doc = None
-            this_doc = mcs.class_doc_inherit(prnt_cls_doc, this_doc)
+            pass
 
         class_dict["__doc__"] = this_doc
 
@@ -44,31 +44,13 @@ class DocInheritorBase(type):
                 attribute,
                 (FunctionType, MethodType, classmethod, staticmethod, property),
             )
-            if (
-                (attr.startswith("__") and attr.endswith("__") and not mcs.include_special_methods) or
-                not is_doc_type
-            ):
+            if not is_doc_type:
                 continue
 
             is_static_or_class = isinstance(attribute, (staticmethod, classmethod))
             child_attr = attribute if not is_static_or_class else attribute.__func__
 
-            prnt_attr_doc = None
-            for mro_cls in (
-                mro_cls
-                for base in class_bases
-                for mro_cls in base.mro()
-                if hasattr(mro_cls, attr)
-            ):
-                prnt_attr_doc = getattr(mro_cls, attr).__doc__
-
-                if prnt_attr_doc is not None:
-                    break
-
-            if prnt_attr_doc is None:
-                continue
-
-            doc = mcs.attr_doc_inherit(prnt_attr_doc, child_attr.__doc__)
+            doc = None
             try:
                 child_attr.__doc__ = doc
             # property.__doc__ is read-only in Python 2 (TypeError), 3.3 - 3.4 (AttributeError)

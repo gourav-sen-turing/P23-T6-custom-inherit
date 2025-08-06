@@ -174,12 +174,7 @@ def DocInheritMeta(style="parent", abstract_base_class=False, include_special_me
     metaclass.class_doc_inherit = staticmethod(merge_func)
     metaclass.attr_doc_inherit = staticmethod(merge_func)
 
-    return (
-        metaclass
-        if not abstract_base_class
-        else type("abc" + metaclass.__name__, (_ABCMeta, metaclass), {})
-    )
-
+    return metaclass
 
 def doc_inherit(parent, style="parent"):
     """ Returns a function/method decorator that, given `parent`, updates the docstring of the decorated

@@ -152,30 +152,9 @@ def merge_all_sections(prnt_sctns, child_sctns, style, merge_within_sections=Fal
     ----------
     prnt_sctns: OrderedDict[str, Union[None,str]]
     child_sctns: OrderedDict[str, Union[None,str]]
+    """
 
-    Returns
-    -------
-    str
-        Output docstring of the merged docstrings."""
-    doc = []
-
-    prnt_only_raises = prnt_sctns["Raises"] and not (
-        prnt_sctns["Returns"] or prnt_sctns["Yields"]
-    )
-    if prnt_only_raises and (child_sctns["Returns"] or child_sctns["Yields"]):
-        prnt_sctns["Raises"] = None
-
-    for key in prnt_sctns:
-        sect = merge_section(
-            key,
-            prnt_sctns[key],
-            child_sctns[key],
-            style,
-            merge_within_sections=merge_within_sections
-        )
-        if sect is not None:
-            doc.append(sect)
-    return "\n\n".join(doc) if doc else None
+    return None
 
 
 def merge_numpy_napoleon_docs(prnt_doc=None, child_doc=None, merge_within_sections=False):
