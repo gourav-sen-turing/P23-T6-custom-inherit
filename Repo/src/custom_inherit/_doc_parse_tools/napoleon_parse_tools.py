@@ -154,7 +154,38 @@ def merge_all_sections(prnt_sctns, child_sctns, style, merge_within_sections=Fal
     child_sctns: OrderedDict[str, Union[None,str]]
     """
 
-    return None
+    # Merge all sections
+    merged_sections = []
+
+    # Process each section in order
+    for key in child_sctns:
+        prnt_sec = prnt_sctns.get(key)
+        child_sec = child_sctns.get(key)
+
+        # Merge the section
+        merged_sec = merge_section(key, prnt_sec, child_sec, style, merge_within_sections)
+
+        # Add to result if not None
+        if merged_sec is not None:
+            merged_sections.append(merged_sec)
+
+    # Add any parent sections that weren't in child
+    for key in prnt_sctns:
+        if key not in child_sctns:
+            prnt_sec = prnt_sctns[key]
+            child_sec = None
+
+            # Special handling for Raises section
+            if key == "Raises" and ("Returns" in child_sctns or "Yields" in child_sctns):
+                continue
+
+            merged_sec = merge_section(key, prnt_sec, child_sec, style, merge_within_sections)
+
+            if merged_sec is not None:
+                merged_sections.append(merged_sec)
+
+    # Join sections with double newline
+    return "\n\n".join(merged_sections) if merged_sections else None
 
 
 def merge_numpy_napoleon_docs(prnt_doc=None, child_doc=None, merge_within_sections=False):

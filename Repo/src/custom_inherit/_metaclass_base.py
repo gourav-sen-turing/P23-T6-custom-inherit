@@ -34,7 +34,7 @@ class DocInheritorBase(type):
             if prnt_cls_doc is not None:
                 if prnt_cls_doc == "The most base type":
                     prnt_cls_doc = None
-            pass
+            this_doc = mcs.class_doc_inherit(prnt_cls_doc, this_doc)
 
         class_dict["__doc__"] = this_doc
 
@@ -47,10 +47,36 @@ class DocInheritorBase(type):
             if not is_doc_type:
                 continue
 
+            # Check if we should skip special methods
+            if not mcs.include_special_methods and attr.startswith("__") and attr.endswith("__"):
+                continue
+
             is_static_or_class = isinstance(attribute, (staticmethod, classmethod))
             child_attr = attribute if not is_static_or_class else attribute.__func__
 
-            doc = None
+            # Get the child's docstring
+            child_doc = child_attr.__doc__
+
+            # Find parent attribute and its docstring
+            prnt_attr_doc = None
+            parent_found = False
+            for mro_cls in (mro_cls for base in class_bases for mro_cls in base.mro() if hasattr(mro_cls, attr)):
+                parent_found = True
+                prnt_attr = getattr(mro_cls, attr)
+                if isinstance(prnt_attr, (staticmethod, classmethod)):
+                    prnt_attr = prnt_attr.__func__
+                elif isinstance(prnt_attr, property):
+                    prnt_attr_doc = prnt_attr.__doc__
+                    break
+                else:
+                    prnt_attr_doc = prnt_attr.__doc__
+                    break
+
+            # Only merge docstrings if we found a parent attribute
+            if parent_found:
+                doc = mcs.attr_doc_inherit(prnt_attr_doc, child_doc)
+            else:
+                doc = child_doc
             try:
                 child_attr.__doc__ = doc
             # property.__doc__ is read-only in Python 2 (TypeError), 3.3 - 3.4 (AttributeError)
@@ -68,7 +94,12 @@ class DocInheritorBase(type):
                 else:
                     raise type(err)(err)
 
-        return type.__new__(mcs, class_name, class_bases, class_dict)
+        # Check if ABCMeta is in the MRO and call its __new__ if present
+        from abc import ABCMeta
+        if ABCMeta in mcs.__mro__:
+            return ABCMeta.__new__(mcs, class_name, class_bases, class_dict)
+        else:
+            return type.__new__(mcs, class_name, class_bases, class_dict)
 
     @staticmethod
     def class_doc_inherit(prnt_cls_doc, child_doc):
