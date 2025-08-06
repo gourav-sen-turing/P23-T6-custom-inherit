@@ -168,8 +168,17 @@ def DocInheritMeta(style="parent", abstract_base_class=False, include_special_me
     -------
     custom_inherit.DocInheritorBase"""
 
+    from abc import ABCMeta
+
     merge_func = store[style]
-    metaclass = type(_DocInheritorBase.__name__, _DocInheritorBase.__bases__, dict(_DocInheritorBase.__dict__))
+
+    # Determine base classes for the metaclass
+    if abstract_base_class:
+        bases = (_DocInheritorBase, ABCMeta)
+    else:
+        bases = _DocInheritorBase.__bases__
+
+    metaclass = type(_DocInheritorBase.__name__, bases, dict(_DocInheritorBase.__dict__))
     metaclass.include_special_methods = include_special_methods
     metaclass.class_doc_inherit = staticmethod(merge_func)
     metaclass.attr_doc_inherit = staticmethod(merge_func)

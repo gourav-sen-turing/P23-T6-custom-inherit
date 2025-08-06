@@ -122,9 +122,29 @@ def merge_all_sections(prnt_sctns, child_sctns, merge_within_sections=False):
     ----------
     prnt_sctns: OrderedDict[str, Union[None,str]]
     child_sctns: OrderedDict[str, Union[None,str]]
-    """
+    merge_within_sections: bool
+        Whether to merge within sections.
 
-    return None
+    Returns
+    -------
+    str
+        The merged docstring.
+    """
+    merged_sections = []
+
+    # Process each section
+    for key in prnt_sctns:
+        prnt_sec = prnt_sctns[key]
+        child_sec = child_sctns[key]
+
+        # Merge the section
+        merged_section = merge_section(key, prnt_sec, child_sec, merge_within_sections)
+
+        if merged_section:
+            merged_sections.append(merged_section)
+
+    # Join sections with double newlines
+    return "\n\n".join(merged_sections).strip()
 
 
 def merge_numpy_docs(prnt_doc=None, child_doc=None, merge_within_sections=False):
