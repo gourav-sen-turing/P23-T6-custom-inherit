@@ -1,0 +1,6 @@
+# Development dependencies
+pytest
+setuptools
+wheel
+six
+pytest
